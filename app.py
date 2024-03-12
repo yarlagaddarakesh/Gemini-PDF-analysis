@@ -1,7 +1,7 @@
 import streamlit as st
 import tempfile
 from PyPDF2 import PdfReader
-from utils import get_model_response, send_files
+from utils import get_model_response
 from langchain_core.messages import AIMessage,HumanMessage
 
 
@@ -16,11 +16,10 @@ def main():
     st.title("Chat with PDF file using Gemini Pro")
     uploaded_file = st.sidebar.file_uploader("You can choose a Single or Multiple PDF's",type="pdf", accept_multiple_files=True)
     if uploaded_file is not None:
-        file = send_files(uploaded_file)
         #User Input
         user_query = st.chat_input("Enter Your Question:")
         if user_query is not None and user_query != "":
-            response = get_model_response(file, user_query)
+            response = get_model_response(uploaded_file, user_query)
             st.session_state.chat_history.append(HumanMessage(content=user_query))
             st.session_state.chat_history.append(AIMessage(content=response))
 

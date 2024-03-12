@@ -14,17 +14,6 @@ load_dotenv()
 genai.configure(api_key="GEMINI_API_KEY")
 os.environ["GOOGLE_API_KEY"]="GEMINI_API_KEY"
 
-def send_files(file):
-    # get pdf text
-    raw_text = get_pdf_text(file)
-
-    # get the text chunks
-    text_chunks = get_text_chunks(raw_text)
-
-    # create vector store
-    docsearch = get_vectorstore(text_chunks)
-    return docsearch
-
 
 def get_pdf_text(pdf_docs):
     text = ""
@@ -49,12 +38,20 @@ def get_text_chunks(text):
 def get_vectorstore(text_chunks):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     # embeddings = HuggingFaceInstructEmbeddings(model_name="hkunlp/instructor-xl")
-    vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
+    vectorstore = FAISS.from_texts(text_chunks, embeddings)
     return vectorstore
 
 
 #Function to get response from GEMINI PRO
-def get_model_response(docsearch,query):
+def get_model_response(file,query):
+    # get pdf text
+    raw_text = get_pdf_text(file)
+
+    # get the text chunks
+    text_chunks = get_text_chunks(raw_text)
+
+    # create vector store
+    docsearch = get_vectorstore(text_chunks)
     
     q = "Tell me about randomforest"
     records = docsearch.similarity_search(q)
