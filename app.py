@@ -1,23 +1,38 @@
 import streamlit as st
 import tempfile
 from PyPDF2 import PdfReader
-from utils import get_model_response
+from utils import get_model_response, send_files
+from langchain_core.messages import AIMessage,HumanMessage
+
+
+# Chat history
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = [
+        AIMessage(content="Hello, I am a bot. How can I help you?"),
+    ]
+
 
 def main():
     st.title("Chat with PDF file using Gemini Pro")
-    uploaded_file = st.sidebar.file_uploader("Chhose a CSV file",type="pdf")
+    uploaded_file = st.sidebar.file_uploader("You can choose a Single or Multiple PDF's",type="pdf", accept_multiple_files=True)
     if uploaded_file is not None:
-        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-            tmp_file.write(uploaded_file.getvalue())
-            tmp_file_path = tmp_file.name
+        file = send_files(uploaded_file)
+        #User Input
+        user_query = st.chat_input("Enter Your Question:")
+        if user_query is not None and user_query != "":
+            response = get_model_response(file, user_query)
+            st.session_state.chat_history.append(HumanMessage(content=user_query))
+            st.session_state.chat_history.append(AIMessage(content=response))
 
-            reader = PdfReader(tmp_file_path)
-
-            user_input = st.text_input("Enter Your Question:")
-
-            if user_input:
-                response = get_model_response(reader, user_input)
-                st.write(response)
+        #Conversation
+        for message in st.session_state.chat_history:
+            if isinstance(message,AIMessage):
+                with st.chat_message("AI"):
+                    st.write(message.content)
+            elif isinstance(message,HumanMessage):
+                with st.chat_message("Human"):
+                        st.write(message.content)
+                
 
 if __name__ == "__main__":
     main()
