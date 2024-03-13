@@ -94,7 +94,7 @@ def main():
 
     # Display user input box only if files are uploaded
     if uploaded_file:
-        user_query = st.text_input("Enter Your Question:")
+        user_query = st.chat_input("Enter Your Question:")
         if user_query is not None and user_query != "":
             response = get_model_response(uploaded_file, user_query)
             st.session_state.chat_history.append(HumanMessage(content=user_query))
