@@ -6,3 +6,4 @@ tiktoken
 streamlit
 langchain_google_genai
 chromadb
+python-dotenv==1.0.1
